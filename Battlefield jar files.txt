@@ -1,0 +1,4 @@
+file:/C:/Users/toni/Desktop/warriorManger1.jar
+ConcreteWarriorManager
+file:/C:/Users/toni/Desktop/warriorManger2.jar
+ConcreteWarriorManager

@@ -1,22 +1,23 @@
-package ia.battle.camp;
+package ia.battle.enemy;
+
 import ia.battle.camp.Warrior;
 import ia.battle.camp.WarriorManager;
 import ia.exceptions.RuleException;
 
-
-public class ConcreteWarriorManager extends WarriorManager{
+public class ConcreteEnemyManager  extends WarriorManager{
 	
     @Override
     public String getName() {
-            return "Warrior Manager";
+            return "Enemy Manager";
     }
 
     @Override
     public Warrior getNextWarrior() throws RuleException {
 
-            Warrior m = new ConcreteWarrior("Warrior 1", 60, 10, 10, 10, 10);
+            Warrior m = new ConcreteStaticWarrior("Static Warrior", 60, 10, 10, 10, 10);
 
             return m;
     }
+
 
 }
