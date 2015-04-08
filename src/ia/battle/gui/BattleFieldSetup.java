@@ -101,7 +101,7 @@ public class BattleFieldSetup extends JFrame {
 				figthClicked();
 			}
 		});
-		soundPlayer = new DefaultSoundPlayer();
+		//soundPlayer = new DefaultSoundPlayer();
 		this.add(startButton, BorderLayout.SOUTH);
 	}
 
@@ -190,12 +190,12 @@ public class BattleFieldSetup extends JFrame {
 
 				public void warriorAttacked(Warrior attacked, Warrior attacker,
 						int damage) {
-					soundPlayer.playAttack();
+					//soundPlayer.playAttack();
 				}
 
 				@Override
 				public void warriorKilled(Warrior killed) {
-					soundPlayer.playBotKilled();
+					//soundPlayer.playBotKilled();
 				}
 				
 				@Override

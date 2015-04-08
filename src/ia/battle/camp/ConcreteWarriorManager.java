@@ -14,7 +14,7 @@ public class ConcreteWarriorManager extends WarriorManager{
     @Override
     public Warrior getNextWarrior() throws RuleException {
 
-            Warrior m = new ConcreteWarrior("Warrior 1", 60, 10, 10, 10, 10);
+            Warrior m = new AStartWarrior("Warrior 1", 10, 10, 10, 40, 30);
 
             return m;
     }
