@@ -3,8 +3,10 @@ package ia.battle.move;
 import ia.battle.camp.BattleField;
 import ia.battle.camp.ConfigurationManager;
 import ia.battle.camp.FieldCell;
+import ia.battle.camp.actions.Attack;
 import ia.exceptions.OutOfMapException;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +77,7 @@ public class AStar {
 
 	public ArrayList<Node> findPath(FieldCell source, FieldCell target) {
 		nodes = new ArrayList<Node>();
+		boolean stopProcessing = false;
 		closedNodes = new ArrayList<Node>();
 		openedNodes = new ArrayList<Node>();
 
@@ -89,26 +92,98 @@ public class AStar {
 		destination = nodes.get(nodes.indexOf(new Node(target.getX(), target.getY())));
 
 		Node currentNode = origin;
-		while (!currentNode.equals(destination)) {
+		while (!stopProcessing && !currentNode.equals(destination)) {
 			processNode(currentNode);
-			currentNode = getMinFValueNode();
+			
+			if (openedNodes.size() > 0)
+				currentNode = getMinFValueNode();
+			else
+				stopProcessing = true;
 		}
 
 		return retrievePath();
 	}
 
+/*
+				
+				// No tiene donde avanzar => rompo pared.
+				System.out.append("************* ROMPIENDO PARED ************\n");
+				
+				// Calcula qué pared romper.
+				FieldCell wall = wallToBreak(source, target);
+				nodes.add(new Node(wall.getX(), wall.getY()));
+				Attack at = new Attack(wall);
+				
+				try {
+					FieldCell paredRota = BattleField.getInstance().getFieldCell(wall.getX(), wall.getY());
+					
+					if (paredRota.getFieldCellType() == paredRota.getFieldCellType().BLOCKED)
+						System.out.append("********************** NO SE ROMPIO *********************************************\n");
+					else
+						System.out.append("****************************************** SE ROMPIO!!! *********************************************\n");
+					
+				} catch (OutOfMapException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+ */	
+	
+	public FieldCell getWallToBreak(FieldCell source, FieldCell target) {
+		FieldCell wall = null;
+		
+		int sourceX = source.getX();
+		int sourceY = source.getY();
+		
+		try {
+			// Intenta a la izquierda
+		    if (map[sourceX-1][sourceY] == 1) {
+		    	wall = BattleField.getInstance().getFieldCell(sourceX-1, sourceY);
+		    }
+		} catch(Exception ex) {
+		}		    
+		    
+		try {
+			// Intenta a la derecha
+		    if (map[sourceX+1][sourceY] == 1) {
+		    	wall = BattleField.getInstance().getFieldCell(sourceX+1, sourceY);
+		    }
+		} catch(Exception ex) {
+		}
+	    
+		try {
+			// Intenta arriba
+		    if (map[sourceX][sourceY+1] == 1) {
+		    	wall = BattleField.getInstance().getFieldCell(sourceX, sourceY+1);
+		    }
+		} catch(Exception ex) {
+		}		
+
+		try {
+			// Intenta abajo
+		    if (map[sourceX][sourceY-1] == 1) {
+		    	wall = BattleField.getInstance().getFieldCell(sourceX, sourceY-1);
+		    }
+		} catch(Exception ex) {
+		}
+		
+		return wall;
+	}
 	
 	private ArrayList<Node> retrievePath() {
 		ArrayList<Node> path = new ArrayList<Node>();
 		Node node = destination;
 
-		while (!node.equals(origin)) {
-			path.add(node);
-			node = node.getParent();
+		try {
+			while (!node.equals(origin)) {
+				path.add(node);
+				node = node.getParent();
+			}
+	
+			Collections.reverse(path);
+		} catch (Exception ex) {
+			path = null;
 		}
-
-		Collections.reverse(path);
-
+		
 		return path;
 	}
 
@@ -170,29 +245,37 @@ public class AStar {
 		int x = node.getX();
 		int y = node.getY();
 
+		// Izquierda
+		if (nodes.indexOf(new Node(x - 1, y)) >= 0)
+			adjCells.add(nodes.get(nodes.indexOf(new Node(x - 1, y))));
+		
+		// Derecha
 		if (nodes.indexOf(new Node(x + 1, y)) >= 0)
 			adjCells.add(nodes.get(nodes.indexOf(new Node(x + 1, y))));
 
+		// Arriba
 		if (nodes.indexOf(new Node(x, y + 1)) >= 0)
 			adjCells.add(nodes.get(nodes.indexOf(new Node(x, y + 1))));
 
-		if (nodes.indexOf(new Node(x - 1, y)) >= 0)
-			adjCells.add(nodes.get(nodes.indexOf(new Node(x - 1, y))));
-
+		// Abajo
 		if (nodes.indexOf(new Node(x, y - 1)) >= 0)
 			adjCells.add(nodes.get(nodes.indexOf(new Node(x, y - 1))));
 
+		// Diagonal inferior izquierda
 		if (nodes.indexOf(new Node(x - 1, y - 1)) >= 0)
 			adjCells.add(nodes.get(nodes.indexOf(new Node(x - 1, y - 1))));
 
-		if (nodes.indexOf(new Node(x + 1, y + 1)) >= 0)
-			adjCells.add(nodes.get(nodes.indexOf(new Node(x + 1, y + 1))));
-
-		if (nodes.indexOf(new Node(x - 1, y + 1)) >= 0)
-			adjCells.add(nodes.get(nodes.indexOf(new Node(x - 1, y + 1))));
-
+		// Diagonal inferior derecha
 		if (nodes.indexOf(new Node(x + 1, y - 1)) >= 0)
 			adjCells.add(nodes.get(nodes.indexOf(new Node(x + 1, y - 1))));
+
+		// Diagonal superior izquierda
+		if (nodes.indexOf(new Node(x - 1, y + 1)) >= 0)
+			adjCells.add(nodes.get(nodes.indexOf(new Node(x - 1, y + 1))));		
+		
+		// Diagonal superior derecha
+		if (nodes.indexOf(new Node(x + 1, y + 1)) >= 0)
+			adjCells.add(nodes.get(nodes.indexOf(new Node(x + 1, y + 1))));
 
 		return adjCells;
 	}
@@ -214,6 +297,8 @@ public class AStar {
 		ArrayList<FieldCell> maxMoves = new ArrayList<FieldCell>();
 		
 		// fijarse que max no se mayor que nodes porque va a dar IndexArrayExeption
+		max = max > nodes.size() ? nodes.size() : max;
+		
 		for(int i=0; i<max; i++){
 			Node actualNode = nodes.get(i);
 			try {
